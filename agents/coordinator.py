@@ -60,13 +60,20 @@ class Coordinator:
             
             print(f"{'='*60}\n")
             
-            # Convert postgres:// to postgresql:// for newer SQLAlchemy versions
-            security_fork_url = security_fork_url.replace('postgres://', 'postgresql://')
-            quality_fork_url = quality_fork_url.replace('postgres://', 'postgresql://')
+            # Convert to postgresql+psycopg:// for psycopg3 (Python 3.13 compatible)
+            def convert_to_psycopg3(url):
+                if url.startswith('postgres://'):
+                    return url.replace('postgres://', 'postgresql+psycopg://', 1)
+                elif url.startswith('postgresql://') and '+psycopg' not in url:
+                    return url.replace('postgresql://', 'postgresql+psycopg://', 1)
+                return url
+            
+            security_fork_url = convert_to_psycopg3(security_fork_url)
+            quality_fork_url = convert_to_psycopg3(quality_fork_url)
             if performance_fork_url:
-                performance_fork_url = performance_fork_url.replace('postgres://', 'postgresql://')
+                performance_fork_url = convert_to_psycopg3(performance_fork_url)
             if best_practices_fork_url:
-                best_practices_fork_url = best_practices_fork_url.replace('postgres://', 'postgresql://')
+                best_practices_fork_url = convert_to_psycopg3(best_practices_fork_url)
             
             # Create engines for forks
             security_engine = create_engine(security_fork_url)
