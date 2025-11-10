@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Cleanup Agents</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Modern Navigation Bar */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+        
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            padding: 0.5rem 1rem;
+            color: var(--gray-600);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover {
+            background: var(--gray-100);
+            color: var(--gray-900);
+        }
+        
+        .nav-link.active {
+            background: var(--gray-100);
+            color: var(--primary);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .hero p {
+            font-size: 1.125rem;
+            color: var(--gray-600);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Modern Card Design */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--gray-200);
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+        
+        .upload-section {
+            background: white;
+            border-radius: 12px;
+            padding: 3rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--gray-200);
+            margin-bottom: 2rem;
+        }
+        
+        .file-input-wrapper {
+            border: 2px dashed var(--gray-300);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--gray-50);
+        }
+        
+        .file-input-wrapper:hover {
+            border-color: var(--primary);
+            background: var(--gray-100);
+        }
+        
+        .file-input-wrapper.dragover {
+            border-color: var(--primary);
+            background: #eef2ff;
+        }
+        
+        .file-input-wrapper input {
+            display: none;
+        }
+        
+        .file-input-wrapper h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-input-wrapper p {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+        
+        /* Modern Button */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+        
+        .analyze-btn {
+            margin-top: 1.5rem;
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            display: none;
+        }
+        
+        .spinner {
+            border: 3px solid var(--gray-200);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 2rem;
+        }
+        
+        .agent-status {
+            background: var(--gray-50);
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .agent-status strong {
+            color: var(--gray-900);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .agent-status div {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+        
+        /* Results Section */
+        .results {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--gray-200);
+            display: none;
+        }
+        
+        .results h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Stats Grid */
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card h3 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card p {
+            opacity: 0.95;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        /* Issues Section */
+        .issues-section {
+            margin-top: 2rem;
+        }
+        
+        .issues-section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .issues-section h3:first-child {
+            margin-top: 0;
+        }
+        
+        .issue {
+            border-left: 4px solid var(--primary);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            background: var(--gray-50);
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+            transition: all 0.2s;
+        }
+        
+        .issue:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .issue.critical {
+            border-left-color: var(--danger);
+        }
+        
+        .issue.high {
+            border-left-color: #f97316;
+        }
+        
+        .issue.medium {
+            border-left-color: var(--warning);
+        }
+        
+        .issue.low {
+            border-left-color: #3b82f6;
+        }
+        
+        .issue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .issue-title {
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: 0.9375rem;
+        }
+        
+        .severity-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        
+        .severity-badge.CRITICAL {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+        
+        .severity-badge.HIGH {
+            background: #fed7aa;
+            color: #ea580c;
+        }
+        
+        .severity-badge.MEDIUM {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .severity-badge.LOW {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .issue-code {
+            background: var(--gray-900);
+            color: #e5e7eb;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 0.875rem;
+            margin: 0.75rem 0;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+        
+        .issue-fix {
+            color: var(--success);
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .saved-banner {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+        
+        .saved-banner button {
+            float: right;
+            padding: 0.375rem 0.875rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .saved-banner button:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <span>🤖</span>
+                <span>Code Cleanup</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">Analyzer</a>
+                <a href="/search" class="nav-link">Search</a>
+                <a href="/status" class="nav-link">Status</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Code Analysis Platform</h1>
+            <p>Multi-Agent Code Analysis powered by Agentic Postgres</p>
+        </div>
+        
+        <div class="upload-section">
+            <form id="uploadForm">
+                <div class="file-input-wrapper" onclick="document.getElementById('fileInput').click()">
+                    <input type="file" id="fileInput" accept=".py,.js,.java,.cpp,.c,.rb" />
+                    <div>
+                        <h3>📁 Drop your code file here</h3>
+                        <p>or click to browse</p>
+                        <p style="margin-top: 10px; color: var(--gray-500); font-size: 0.875rem;">
+                            Supports: .py, .js, .java, .cpp, .c, .rb
+                        </p>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" class="btn btn-primary analyze-btn" id="analyzeBtn" disabled>
+                        <span>🔍</span>
+                        <span>Analyze Code</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <h3>🤖 Agents are analyzing your code...</h3>
+            <div style="margin-top: 2rem; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <div class="agent-status">
+                    <strong>🔒 Security Agent</strong> → Database Fork 1
+                    <div>Scanning for vulnerabilities, hardcoded secrets, SQL injection...</div>
+                </div>
+                
+                <div class="agent-status">
+                    <strong>✨ Quality Agent</strong> → Database Fork 2
+                    <div>Analyzing code quality, duplicates, missing docs...</div>
+                </div>
+                
+                <div class="agent-status">
+                    <strong>⚡ Performance Agent</strong> → Database Fork 3
+                    <div>Finding N+1 queries, inefficient loops, optimization opportunities...</div>
+                </div>
+                
+                <div class="agent-status">
+                    <strong>📋 Best Practices Agent</strong> → Database Fork 4
+                    <div>Checking coding standards, naming conventions, language idioms...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results" id="results">
+            <h2>📊 Analysis Results</h2>
+            <div class="summary">
+                <div class="stat-card">
+                    <h3 id="totalIssues">0</h3>
+                    <p>Total Issues</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="securityIssues">0</h3>
+                    <p>Security Issues</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="qualityIssues">0</h3>
+                    <p>Quality Issues</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="performanceIssues">0</h3>
+                    <p>Performance Issues</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="bestPracticesIssues">0</h3>
+                    <p>Best Practices</p>
+                </div>
+            </div>
+            
+            <div class="issues-section">
+                <h3>🔒 Security Issues</h3>
+                <div id="securityList"></div>
+                
+                <h3>✨ Quality Issues</h3>
+                <div id="qualityList"></div>
+                
+                <h3>⚡ Performance Issues</h3>
+                <div id="performanceList"></div>
+                
+                <h3>📋 Best Practices Issues</h3>
+                <div id="bestPracticesList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const uploadForm = document.getElementById('uploadForm');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const fileInputWrapper = document.querySelector('.file-input-wrapper');
+        
+        // Add drag and drop functionality
+        fileInputWrapper.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            fileInputWrapper.classList.add('dragover');
+        });
+        
+        fileInputWrapper.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            fileInputWrapper.classList.remove('dragover');
+        });
+        
+        fileInputWrapper.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            fileInputWrapper.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = `<span>🔍</span><span>Analyze ${files[0].name}</span>`;
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = `<span>🔍</span><span>Analyze ${e.target.files[0].name}</span>`;
+            }
+        });
+        
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // Clear previous results from localStorage when starting new analysis
+            localStorage.removeItem('codeAnalysisResults');
+            localStorage.removeItem('codeAnalysisFilename');
+            localStorage.removeItem('codeAnalysisTimestamp');
+            
+            // Show loading
+            document.querySelector('.upload-section').style.display = 'none';
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                // Save to localStorage for persistence
+                localStorage.setItem('codeAnalysisResults', JSON.stringify(data));
+                localStorage.setItem('codeAnalysisFilename', data.filename);
+                localStorage.setItem('codeAnalysisTimestamp', new Date().toISOString());
+                
+                // Hide loading, show results
+                loading.style.display = 'none';
+                results.style.display = 'block';
+                
+                // Display results
+                displayResults(data);
+                
+            } catch (error) {
+                alert('Error analyzing code: ' + error.message);
+                document.querySelector('.upload-section').style.display = 'block';
+                loading.style.display = 'none';
+            }
+        });
+        
+        function displayIssues(elementId, issues) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            
+            if (issues.length === 0) {
+                container.innerHTML = '<p style="color: var(--success); font-weight: 500;">✅ No issues found!</p>';
+                return;
+            }
+            
+            issues.forEach(issue => {
+                const issueDiv = document.createElement('div');
+                issueDiv.className = `issue ${issue.severity.toLowerCase()}`;
+                issueDiv.innerHTML = `
+                    <div class="issue-header">
+                        <span class="issue-title">Line ${issue.line}: ${issue.issue}</span>
+                        <span class="severity-badge ${issue.severity}">${issue.severity}</span>
+                    </div>
+                    <div class="issue-code">${escapeHtml(issue.code)}</div>
+                    <div class="issue-fix">💡 Fix: ${issue.fix}</div>
+                `;
+                container.appendChild(issueDiv);
+            });
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function displayResults(data) {
+            // Update stats
+            document.getElementById('totalIssues').textContent = data.total_issues;
+            document.getElementById('securityIssues').textContent = data.security.count;
+            document.getElementById('qualityIssues').textContent = data.quality.count;
+            document.getElementById('performanceIssues').textContent = data.performance.count;
+            document.getElementById('bestPracticesIssues').textContent = data.best_practices.count;
+            
+            // Display issues
+            displayIssues('securityList', data.security.issues);
+            displayIssues('qualityList', data.quality.issues);
+            displayIssues('performanceList', data.performance.issues);
+            displayIssues('bestPracticesList', data.best_practices.issues);
+        }
+        
+        // Load saved results on page load
+        function loadSavedResults() {
+            const savedResults = localStorage.getItem('codeAnalysisResults');
+            if (savedResults) {
+                try {
+                    const data = JSON.parse(savedResults);
+                    const filename = localStorage.getItem('codeAnalysisFilename') || data.filename || 'Previous Analysis';
+                    const timestamp = localStorage.getItem('codeAnalysisTimestamp');
+                    
+                    // Hide upload section, show results
+                    document.querySelector('.upload-section').style.display = 'none';
+                    results.style.display = 'block';
+                    
+                    // Add a banner showing this is a saved result
+                    const resultsContainer = document.querySelector('#results');
+                    if (resultsContainer && !resultsContainer.querySelector('.saved-banner')) {
+                        const resultsHeader = resultsContainer.querySelector('h2');
+                        const banner = document.createElement('div');
+                        banner.className = 'saved-banner';
+                        banner.innerHTML = `📌 Showing saved results for: <strong>${escapeHtml(filename)}</strong>`;
+                        if (timestamp) {
+                            const date = new Date(timestamp);
+                            banner.innerHTML += ` <span style="margin-left: 10px;">(${date.toLocaleString()})</span>`;
+                        }
+                        banner.innerHTML += ' <button onclick="clearSavedResults()">Clear</button>';
+                        if (resultsHeader) {
+                            resultsHeader.parentNode.insertBefore(banner, resultsHeader.nextSibling);
+                        }
+                    }
+                    
+                    // Display the results
+                    displayResults(data);
+                } catch (e) {
+                    console.error('Error loading saved results:', e);
+                    localStorage.removeItem('codeAnalysisResults');
+                }
+            }
+        }
+        
+        window.clearSavedResults = function() {
+            localStorage.removeItem('codeAnalysisResults');
+            localStorage.removeItem('codeAnalysisFilename');
+            localStorage.removeItem('codeAnalysisTimestamp');
+            location.reload();
+        };
+        
+        // Load saved results when page loads
+        window.addEventListener('DOMContentLoaded', loadSavedResults);
+    </script>
+</body>
+</html>

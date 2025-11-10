@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic Code Search</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Modern Navigation Bar */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+        
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            padding: 0.5rem 1rem;
+            color: var(--gray-600);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover {
+            background: var(--gray-100);
+            color: var(--gray-900);
+        }
+        
+        .nav-link.active {
+            background: var(--gray-100);
+            color: var(--primary);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .header p {
+            font-size: 1.125rem;
+            color: var(--gray-600);
+        }
+        
+        .search-box {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--gray-200);
+            margin-bottom: 2rem;
+        }
+        
+        .search-input-wrapper {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .search-btn {
+            padding: 0.875rem 1.75rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .search-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+        
+        .example-queries {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .example-queries strong {
+            color: var(--gray-700);
+            font-size: 0.875rem;
+            margin-right: 0.25rem;
+        }
+        
+        .example-query {
+            padding: 0.5rem 1rem;
+            background: var(--gray-100);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--gray-700);
+            border: 1px solid transparent;
+        }
+        
+        .example-query:hover {
+            background: var(--gray-200);
+            border-color: var(--gray-300);
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .results-header {
+            color: var(--gray-900);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .results-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--gray-200);
+            transition: all 0.2s;
+        }
+        
+        .result-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .result-filename {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        
+        .result-score {
+            padding: 0.375rem 0.875rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .result-snippet {
+            background: var(--gray-900);
+            color: #e5e7eb;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+        
+        .result-meta {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-600);
+            font-size: 1.125rem;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            display: none;
+        }
+        
+        .spinner {
+            border: 3px solid var(--gray-200);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading p {
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <span>🤖</span>
+                <span>Code Cleanup</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Analyzer</a>
+                <a href="/search" class="nav-link active">Search</a>
+                <a href="/status" class="nav-link">Status</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Semantic Code Search</h1>
+            <p>Search your codebase using natural language queries</p>
+        </div>
+        
+        <div class="search-box">
+            <div class="search-input-wrapper">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput" 
+                    placeholder='Try: "authentication logic", "database connection", "error handling"'
+                />
+                <button class="search-btn" onclick="search()">🔍 Search</button>
+            </div>
+            
+            <div class="example-queries">
+                <strong>Examples:</strong>
+                <span class="example-query" onclick="searchExample('authentication logic')">authentication logic</span>
+                <span class="example-query" onclick="searchExample('database connection')">database connection</span>
+                <span class="example-query" onclick="searchExample('SQL query')">SQL query</span>
+                <span class="example-query" onclick="searchExample('error handling')">error handling</span>
+                <span class="example-query" onclick="searchExample('password')">password</span>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Searching codebase...</p>
+        </div>
+        
+        <div class="results" id="results"></div>
+    </div>
+    
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                search();
+            }
+        });
+        
+        function searchExample(query) {
+            searchInput.value = query;
+            search();
+        }
+        
+        async function search() {
+            const query = searchInput.value.trim();
+            
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+            
+            // Show loading
+            results.style.display = 'none';
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query, threshold: 0.2 })
+                });
+                
+                const data = await response.json();
+                
+                // Hide loading
+                loading.style.display = 'none';
+                results.style.display = 'block';
+                
+                if (data.results && data.results.length > 0) {
+                    displayResults(data.results, query);
+                } else {
+                    results.innerHTML = '<div class="no-results">No results found. Try a different query.</div>';
+                }
+                
+            } catch (error) {
+                loading.style.display = 'none';
+                results.style.display = 'block';
+                results.innerHTML = '<div class="no-results">Error: ' + error.message + '</div>';
+            }
+        }
+        
+        function displayResults(items, query) {
+            results.innerHTML = `
+                <div class="results-header">
+                    <h2>Found ${items.length} result${items.length !== 1 ? 's' : ''} for "${escapeHtml(query)}"</h2>
+                </div>
+            `;
+            
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.innerHTML = `
+                    <div class="result-header">
+                        <span class="result-filename">📄 ${escapeHtml(item.filename)}</span>
+                        <span class="result-score">${Math.round(item.score * 100)}% match</span>
+                    </div>
+                    <div class="result-snippet">${escapeHtml(item.snippet)}</div>
+                    <div class="result-meta">
+                        Content Score: ${Math.round(item.content_score * 100)}% | 
+                        Filename Score: ${Math.round(item.filename_score * 100)}%
+                    </div>
+                `;
+                results.appendChild(card);
+            });
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

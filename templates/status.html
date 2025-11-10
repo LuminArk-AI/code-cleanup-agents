@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Status - Code Cleanup Agents</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Modern Navigation Bar */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+        
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            padding: 0.5rem 1rem;
+            color: var(--gray-600);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover {
+            background: var(--gray-100);
+            color: var(--gray-900);
+        }
+        
+        .nav-link.active {
+            background: var(--gray-100);
+            color: var(--primary);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        
+        h1 {
+            color: var(--gray-900);
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .status-card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1.5rem;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem;
+            background: var(--gray-50);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--gray-300);
+            border: 1px solid var(--gray-200);
+            transition: all 0.2s;
+        }
+        
+        .status-item:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .status-item.active {
+            border-left-color: var(--success);
+            background: #f0fdf4;
+        }
+        
+        .status-label {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--gray-900);
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .status-badge.connected {
+            background: #d1fae5;
+            color: var(--success);
+        }
+        
+        .status-badge.disconnected {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+        
+        .architecture {
+            margin-top: 3rem;
+            text-align: center;
+        }
+        
+        .architecture h2 {
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        
+        .flow-diagram {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .flow-box {
+            display: inline-block;
+            padding: 1.25rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-radius: 8px;
+            margin: 0.5rem;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .flow-box small {
+            display: block;
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+        
+        .arrow {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin: 0 0.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <span>🤖</span>
+                <span>Code Cleanup</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Analyzer</a>
+                <a href="/search" class="nav-link">Search</a>
+                <a href="/status" class="nav-link active">Status</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>🤖 System Status</h1>
+        
+        <div class="status-card">
+            <h2>Database Connections</h2>
+            
+            <div class="status-item {% if main_db %}active{% endif %}">
+                <span class="status-label">🗄️ Main Database (main-db-60626)</span>
+                <span class="status-badge {% if main_db %}connected{% else %}disconnected{% endif %}">
+                    {% if main_db %}✅ Connected{% else %}❌ Disconnected{% endif %}
+                </span>
+            </div>
+            
+            <div class="status-item {% if security_fork %}active{% endif %}">
+                <span class="status-label">🔒 Security Agent Fork (security_fork-db-60626)</span>
+                <span class="status-badge {% if security_fork %}connected{% else %}disconnected{% endif %}">
+                    {% if security_fork %}✅ Connected{% else %}❌ Disconnected{% endif %}
+                </span>
+            </div>
+            
+            <div class="status-item {% if quality_fork %}active{% endif %}">
+                <span class="status-label">✨ Quality Agent Fork (quality_fork-db-60626)</span>
+                <span class="status-badge {% if quality_fork %}connected{% else %}disconnected{% endif %}">
+                    {% if quality_fork %}✅ Connected{% else %}❌ Disconnected{% endif %}
+                </span>
+            </div>
+            
+            <div class="status-item {% if performance_fork %}active{% endif %}">
+                <span class="status-label">⚡ Performance Agent Fork (performance_fork-db-60626)</span>
+                <span class="status-badge {% if performance_fork %}connected{% else %}disconnected{% endif %}">
+                    {% if performance_fork %}✅ Connected{% else %}❌ Disconnected{% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <div class="architecture">
+            <h2>Multi-Agent Architecture</h2>
+            <div class="flow-diagram">
+                <div style="margin-bottom: 2rem;">
+                    <div class="flow-box">📤 Code Upload</div>
+                    <div class="arrow">↓</div>
+                    <div class="flow-box">🎯 Coordinator</div>
+                </div>
+                
+                <div style="margin: 2rem 0;">
+                    <div class="arrow">↙</div>
+                    <span style="margin: 0 1.5rem;"></span>
+                    <div class="arrow">↓</div>
+                    <span style="margin: 0 1.5rem;"></span>
+                    <div class="arrow">↘</div>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <div class="flow-box">🔒 Security Agent<br/><small>(Fork 1)</small></div>
+                    <span style="margin: 0 1rem;"></span>
+                    <div class="flow-box">✨ Quality Agent<br/><small>(Fork 2)</small></div>
+                    <span style="margin: 0 1rem;"></span>
+                    <div class="flow-box">⚡ Performance Agent<br/><small>(Fork 3)</small></div>
+                </div>
+                
+                <div style="margin: 2rem 0;">
+                    <div class="arrow">↘</div>
+                    <span style="margin: 0 1.5rem;"></span>
+                    <div class="arrow">↑</div>
+                    <span style="margin: 0 1.5rem;"></span>
+                    <div class="arrow">↙</div>
+                </div>
+                
+                <div>
+                    <div class="flow-box">🔄 Merge Results</div>
+                    <div class="arrow">↓</div>
+                    <div class="flow-box">📊 Display Results</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
