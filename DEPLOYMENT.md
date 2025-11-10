@@ -5,7 +5,8 @@ This guide will help you deploy the Code Cleanup Agents application to Render.co
 ## ✅ Pre-Deployment Checklist
 
 All required files have been created:
-- ✅ `requirements.txt` - Python dependencies
+- ✅ `requirements.txt` - Python dependencies (updated for Python 3.12/3.13 compatibility)
+- ✅ `runtime.txt` - Specifies Python 3.12.7 for compatibility
 - ✅ `Procfile` - Tells Render how to run the app
 - ✅ `.gitignore` - Excludes unnecessary files from git
 - ✅ `app.py` - Updated for production (uses PORT env var, debug=False)
@@ -40,10 +41,12 @@ All required files have been created:
 2. Connect your GitHub repository
 3. Configure the service:
    - **Name**: `code-cleanup-agents` (or your preferred name)
-   - **Environment**: `Python 3`
+   - **Environment**: `Python 3` (will use Python 3.12.7 from runtime.txt)
    - **Build Command**: `pip install -r requirements.txt`
    - **Start Command**: `gunicorn app:app` (or leave blank - Procfile will be used)
    - **Plan**: Free (or paid if you need more resources)
+   
+   **Note**: The `runtime.txt` file specifies Python 3.12.7 for compatibility with SQLAlchemy.
 
 ### Step 4: Configure Environment Variables
 
