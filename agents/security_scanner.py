@@ -9,8 +9,23 @@ class SecurityScanner:
         self.engine = engine
         
     def scan(self, code: str, filename: str) -> List[Dict]:
-        """Scan code and return list of security issues"""
+        """
+        Scan code and return list of security issues
+        
+        TODO: Future optimization - For large files:
+        - Process in chunks (e.g., 1000 lines at a time)
+        - Use streaming regex matching
+        - Implement early exit for certain patterns
+        - Add progress tracking
+        """
         issues = []
+        
+        # TODO: Future optimization - Add file size check
+        # LARGE_FILE_THRESHOLD = 5000  # lines
+        # line_count = code.count('\n')
+        # if line_count > LARGE_FILE_THRESHOLD:
+        #     # Use chunked processing
+        #     return self._scan_chunked(code, filename)
         
         # Check for hardcoded secrets
         secret_patterns = [

@@ -10,9 +10,22 @@ class BestPracticesAgent:
         self.engine = engine
         
     def analyze(self, code: str, filename: str) -> List[Dict]:
-        """Analyze code for best practice violations"""
+        """
+        Analyze code for best practice violations
+        
+        TODO: Future optimization - For large files:
+        - Process language-specific sections separately
+        - Use incremental analysis
+        - Cache language detection results
+        - Add progress tracking
+        """
         issues = []
         lines = code.split('\n')
+        
+        # TODO: Future optimization - Chunked processing for large files
+        # LARGE_FILE_THRESHOLD = 5000
+        # if len(lines) > LARGE_FILE_THRESHOLD:
+        #     return self._analyze_chunked(code, filename)
         
         # Detect language
         language = self._detect_language(filename)

@@ -42,9 +42,26 @@ def analyze():
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
     
+    # TODO: Future optimization - Add file size limits for large file handling
+    # MAX_FILE_SIZE = int(os.getenv('MAX_FILE_SIZE', 10 * 1024 * 1024))  # 10MB default
+    # file.seek(0, os.SEEK_END)
+    # file_size = file.tell()
+    # file.seek(0)
+    # if file_size > MAX_FILE_SIZE:
+    #     return jsonify({'error': f'File too large. Maximum size: {MAX_FILE_SIZE / 1024 / 1024}MB'}), 400
+    
     # Read file content
+    # TODO: Future optimization - For very large files, implement streaming/chunked reading
+    # For now, read entire file into memory
     code = file.read().decode('utf-8')
     filename = file.filename
+    
+    # TODO: Future optimization - Add file metadata (size, line count, etc.)
+    # file_metadata = {
+    #     'size': len(code),
+    #     'lines': code.count('\n'),
+    #     'encoding': 'utf-8'
+    # }
     
     # Run analysis
     coordinator = Coordinator(engine)

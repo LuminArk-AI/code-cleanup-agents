@@ -15,12 +15,33 @@ class Coordinator:
     def analyze_code(self, code: str, filename: str):
         """
         Coordinate analysis across multiple agents in parallel using forks
+        
+        TODO: Future optimization - Add support for large file handling:
+        - Chunked processing for files > 5000 lines
+        - Streaming analysis for very large files
+        - Progress tracking for long-running analyses
+        - Memory-efficient processing
         """
         print(f"\n{'='*60}")
         print(f"🎯 Starting multi-agent analysis of {filename}...")
         print(f"{'='*60}")
         
+        # TODO: Future optimization - Calculate file metrics before processing
+        # file_size = len(code)
+        # line_count = code.count('\n')
+        # is_large_file = line_count > 5000  # Threshold for chunked processing
+        
+        # TODO: Future optimization - For large files, use chunked storage or external storage
+        # if is_large_file:
+        #     # Store file reference instead of full content
+        #     # Use external storage (S3, etc.) for very large files
+        #     pass
+        
         # Save code submission to main DB
+        # TODO: Future optimization - For large files, consider:
+        # - Storing only file hash and metadata
+        # - Using external storage for code content
+        # - Implementing compression for stored code
         with self.main_engine.connect() as conn:
             result = conn.execute(text("""
                 INSERT INTO code_submissions (filename, code_content)
@@ -82,6 +103,10 @@ class Coordinator:
             best_practices_engine = create_engine(best_practices_fork_url)
             
             # Run agents in parallel
+            # TODO: Future optimization - For large files, consider:
+            # - Dynamic worker allocation based on file size
+            # - Chunked agent processing (process file in chunks per agent)
+            # - Progress callbacks for long-running analyses
             with ThreadPoolExecutor(max_workers=4) as executor:
                 print("🔒 Security Agent working...")
                 security_future = executor.submit(

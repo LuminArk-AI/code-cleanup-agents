@@ -9,9 +9,22 @@ class PerformanceAgent:
         self.engine = engine
         
     def analyze(self, code: str, filename: str) -> List[Dict]:
-        """Analyze code for performance issues"""
+        """
+        Analyzes code for performance issues and optimization opportunities
+        
+        TODO: Future optimization - For large files:
+        - Use incremental parsing (process sections)
+        - Implement pattern caching
+        - Add progress tracking for long analyses
+        - Optimize regex patterns for large codebases
+        """
         issues = []
         lines = code.split('\n')
+        
+        # TODO: Future optimization - Chunked processing for large files
+        # LARGE_FILE_THRESHOLD = 5000
+        # if len(lines) > LARGE_FILE_THRESHOLD:
+        #     return self._analyze_chunked(code, filename)
         
         # Check for N+1 query patterns
         for line_num, line in enumerate(lines, 1):

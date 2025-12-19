@@ -9,9 +9,22 @@ class CodeQualityAgent:
         self.engine = engine
         
     def analyze(self, code: str, filename: str) -> List[Dict]:
-        """Analyze code quality and return issues"""
+        """
+        Analyze code quality and return issues
+        
+        TODO: Future optimization - For large files:
+        - Process functions/classes incrementally
+        - Use AST parsing for better performance on large files
+        - Implement caching for repeated patterns
+        - Add progress tracking
+        """
         issues = []
         lines = code.split('\n')
+        
+        # TODO: Future optimization - For very large files, use chunked processing
+        # LARGE_FILE_THRESHOLD = 5000
+        # if len(lines) > LARGE_FILE_THRESHOLD:
+        #     return self._analyze_chunked(code, filename)
         
         # Check for long functions
         in_function = False
