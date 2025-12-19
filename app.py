@@ -69,6 +69,32 @@ def analyze():
     
     return jsonify(results)
 
+@app.route('/analyze/repo', methods=['POST'])
+def analyze_repo():
+    """Analyze entire Git repository"""
+    data = request.json
+    
+    if not data or 'repo_url' not in data:
+        return jsonify({'error': 'repo_url is required'}), 400
+    
+    repo_url = data.get('repo_url')
+    branch = data.get('branch', None)
+    analyze_changed_only = data.get('analyze_changed_only', False)
+    
+    if not repo_url:
+        return jsonify({'error': 'repo_url cannot be empty'}), 400
+    
+    try:
+        coordinator = Coordinator(engine)
+        results = coordinator.analyze_repository(
+            repo_url=repo_url,
+            branch=branch,
+            analyze_changed_only=analyze_changed_only
+        )
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/status')
 def status():
     """Show system status and fork information"""

@@ -457,6 +457,33 @@
         .saved-banner button:hover {
             background: var(--primary-dark);
         }
+        
+        /* Mode Toggle Buttons */
+        .mode-btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            background: transparent;
+            color: var(--gray-600);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .mode-btn:hover {
+            background: var(--gray-100);
+            color: var(--gray-900);
+        }
+        
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .mode-btn.active:hover {
+            background: var(--primary-dark);
+        }
     </style>
 </head>
 <body>
@@ -481,7 +508,20 @@
             <p>Multi-Agent Code Analysis powered by Agentic Postgres</p>
         </div>
         
-        <div class="upload-section">
+        <!-- Analysis Mode Toggle -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="display: inline-flex; background: white; padding: 0.25rem; border-radius: 8px; border: 1px solid var(--gray-200);">
+                <button type="button" class="mode-btn active" id="fileModeBtn" onclick="switchMode('file')">
+                    📄 Single File
+                </button>
+                <button type="button" class="mode-btn" id="repoModeBtn" onclick="switchMode('repo')">
+                    📦 Repository
+                </button>
+            </div>
+        </div>
+        
+        <!-- File Upload Section -->
+        <div class="upload-section" id="fileUploadSection">
             <form id="uploadForm">
                 <div class="file-input-wrapper" onclick="document.getElementById('fileInput').click()">
                     <input type="file" id="fileInput" accept=".py,.js,.java,.cpp,.c,.rb" />
@@ -497,6 +537,59 @@
                     <button type="submit" class="btn btn-primary analyze-btn" id="analyzeBtn" disabled>
                         <span>🔍</span>
                         <span>Analyze Code</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Repository Analysis Section -->
+        <div class="upload-section" id="repoAnalysisSection" style="display: none;">
+            <form id="repoForm">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-900);">
+                        Repository URL
+                    </label>
+                    <input 
+                        type="text" 
+                        id="repoUrlInput" 
+                        class="search-input" 
+                        placeholder="https://github.com/username/repo.git or git@github.com:username/repo.git"
+                        style="width: 100%;"
+                    />
+                    <p style="margin-top: 0.5rem; color: var(--gray-500); font-size: 0.875rem;">
+                        Enter a public Git repository URL (HTTPS or SSH)
+                    </p>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-900);">
+                        Branch (optional)
+                    </label>
+                    <input 
+                        type="text" 
+                        id="branchInput" 
+                        class="search-input" 
+                        placeholder="main, master, develop, etc."
+                        style="width: 100%;"
+                    />
+                    <p style="margin-top: 0.5rem; color: var(--gray-500); font-size: 0.875rem;">
+                        Leave empty to use default branch
+                    </p>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="changedOnlyCheck" />
+                        <span style="font-weight: 500; color: var(--gray-900);">
+                            Analyze only changed files (compared to main branch)
+                        </span>
+                    </label>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button type="submit" class="btn btn-primary analyze-btn" id="analyzeRepoBtn">
+                        <span>🔍</span>
+                        <span>Analyze Repository</span>
                     </button>
                 </div>
             </form>
@@ -656,29 +749,7 @@
             }
         });
         
-        function displayIssues(elementId, issues) {
-            const container = document.getElementById(elementId);
-            container.innerHTML = '';
-            
-            if (issues.length === 0) {
-                container.innerHTML = '<p style="color: var(--success); font-weight: 500;">✅ No issues found!</p>';
-                return;
-            }
-            
-            issues.forEach(issue => {
-                const issueDiv = document.createElement('div');
-                issueDiv.className = `issue ${issue.severity.toLowerCase()}`;
-                issueDiv.innerHTML = `
-                    <div class="issue-header">
-                        <span class="issue-title">Line ${issue.line}: ${issue.issue}</span>
-                        <span class="severity-badge ${issue.severity}">${issue.severity}</span>
-                    </div>
-                    <div class="issue-code">${escapeHtml(issue.code)}</div>
-                    <div class="issue-fix">💡 Fix: ${issue.fix}</div>
-                `;
-                container.appendChild(issueDiv);
-            });
-        }
+        // displayIssues function defined later (handles both single file and repo results)
         
         function escapeHtml(text) {
             const div = document.createElement('div');
@@ -746,6 +817,159 @@
             localStorage.removeItem('codeAnalysisTimestamp');
             location.reload();
         };
+        
+        // Repository analysis form handler
+        repoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const repoUrl = document.getElementById('repoUrlInput').value.trim();
+            const branch = document.getElementById('branchInput').value.trim() || null;
+            const analyzeChangedOnly = document.getElementById('changedOnlyCheck').checked;
+            
+            if (!repoUrl) {
+                alert('Please enter a repository URL');
+                return;
+            }
+            
+            // Clear previous results
+            localStorage.removeItem('codeAnalysisResults');
+            localStorage.removeItem('codeAnalysisFilename');
+            localStorage.removeItem('codeAnalysisTimestamp');
+            
+            // Show loading
+            document.querySelector('.upload-section').style.display = 'none';
+            document.getElementById('repoAnalysisSection').style.display = 'none';
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            
+            // Update loading message for repository analysis
+            const loadingTitle = loading.querySelector('h3');
+            if (loadingTitle) {
+                loadingTitle.textContent = '📦 Cloning and analyzing repository...';
+            }
+            
+            try {
+                const response = await fetch('/analyze/repo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        repo_url: repoUrl,
+                        branch: branch,
+                        analyze_changed_only: analyzeChangedOnly
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Hide loading, show results
+                loading.style.display = 'none';
+                results.style.display = 'block';
+                
+                // Display repository results
+                displayRepoResults(data);
+                
+            } catch (error) {
+                alert('Error analyzing repository: ' + error.message);
+                document.querySelector('.upload-section').style.display = 'block';
+                document.getElementById('repoAnalysisSection').style.display = 'block';
+                loading.style.display = 'none';
+            }
+        });
+        
+        function displayRepoResults(data) {
+            // Update summary stats
+            document.getElementById('totalIssues').textContent = data.total_issues.total;
+            document.getElementById('securityIssues').textContent = data.total_issues.security;
+            document.getElementById('qualityIssues').textContent = data.total_issues.quality;
+            document.getElementById('performanceIssues').textContent = data.total_issues.performance;
+            document.getElementById('bestPracticesIssues').textContent = data.total_issues.best_practices;
+            
+            // Create repository summary
+            const resultsHeader = results.querySelector('h2');
+            if (resultsHeader) {
+                resultsHeader.innerHTML = `
+                    📊 Repository Analysis Results
+                    <div style="font-size: 0.875rem; font-weight: normal; color: var(--gray-600); margin-top: 0.5rem;">
+                        ${data.repo_url} ${data.branch ? `(${data.branch})` : ''} • ${data.total_files} files analyzed
+                    </div>
+                `;
+            }
+            
+            // Clear existing issues sections
+            document.getElementById('securityList').innerHTML = '';
+            document.getElementById('qualityList').innerHTML = '';
+            document.getElementById('performanceList').innerHTML = '';
+            document.getElementById('bestPracticesList').innerHTML = '';
+            
+            // Aggregate issues from all files
+            const allSecurityIssues = [];
+            const allQualityIssues = [];
+            const allPerformanceIssues = [];
+            const allBestPracticesIssues = [];
+            
+            data.files.forEach(fileResult => {
+                if (fileResult.error) return;
+                
+                // Add file path to each issue
+                fileResult.security?.issues?.forEach(issue => {
+                    issue.file_path = fileResult.file_path;
+                    allSecurityIssues.push(issue);
+                });
+                fileResult.quality?.issues?.forEach(issue => {
+                    issue.file_path = fileResult.file_path;
+                    allQualityIssues.push(issue);
+                });
+                fileResult.performance?.issues?.forEach(issue => {
+                    issue.file_path = fileResult.file_path;
+                    allPerformanceIssues.push(issue);
+                });
+                fileResult.best_practices?.issues?.forEach(issue => {
+                    issue.file_path = fileResult.file_path;
+                    allBestPracticesIssues.push(issue);
+                });
+            });
+            
+            // Display aggregated issues
+            displayIssues('securityList', allSecurityIssues);
+            displayIssues('qualityList', allQualityIssues);
+            displayIssues('performanceList', allPerformanceIssues);
+            displayIssues('bestPracticesList', allBestPracticesIssues);
+        }
+        
+        // Enhanced displayIssues to handle both single file and repository results
+        function displayIssues(elementId, issues) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            
+            if (issues.length === 0) {
+                container.innerHTML = '<p style="color: var(--success); font-weight: 500;">✅ No issues found!</p>';
+                return;
+            }
+            
+            issues.forEach(issue => {
+                const issueDiv = document.createElement('div');
+                issueDiv.className = `issue ${issue.severity.toLowerCase()}`;
+                
+                // Add file path for repository analysis
+                const filePath = issue.file_path ? `<span style="color: var(--gray-500); font-size: 0.875rem;">${issue.file_path}:</span> ` : '';
+                
+                issueDiv.innerHTML = `
+                    <div class="issue-header">
+                        <span class="issue-title">${filePath}Line ${issue.line}: ${issue.issue}</span>
+                        <span class="severity-badge ${issue.severity}">${issue.severity}</span>
+                    </div>
+                    <div class="issue-code">${escapeHtml(issue.code)}</div>
+                    <div class="issue-fix">💡 Fix: ${issue.fix}</div>
+                `;
+                container.appendChild(issueDiv);
+            });
+        }
         
         // Load saved results when page loads
         window.addEventListener('DOMContentLoaded', loadSavedResults);

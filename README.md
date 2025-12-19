@@ -15,6 +15,13 @@ A modern, multi-agent code analysis platform powered by Agentic Postgres that au
 - Each agent runs on its dedicated database fork simultaneously
 - Results are automatically merged back to the main database
 
+### Git Repository Analysis
+- **Analyze entire Git repositories** - Clone and analyze all files in a repo
+- Support for public repositories (HTTPS/SSH)
+- Analyze specific branches
+- Option to analyze only changed files (diff-based)
+- Multi-file parallel processing
+
 ### Semantic Code Search
 - Natural language code search using PostgreSQL `pg_trgm` extension
 - Fuzzy matching for code content and filenames
@@ -49,7 +56,12 @@ A modern, multi-agent code analysis platform powered by Agentic Postgres that au
 
 3. **Install dependencies**
    ```bash
-   pip install flask sqlalchemy python-dotenv
+   pip install flask sqlalchemy python-dotenv gitpython
+   ```
+   
+   Or use the requirements file:
+   ```bash
+   pip install -r requirements.txt
    ```
 
 4. **Set up environment variables**
@@ -85,10 +97,21 @@ python app.py
 Then open your browser to `http://localhost:5000`
 
 **Features:**
-- Upload code files (.py, .js, .java, .cpp, .c, .rb)
+- **Single File Analysis**: Upload individual code files
+- **Repository Analysis**: Analyze entire Git repositories
+  - Enter repository URL (HTTPS or SSH)
+  - Optional: Specify branch name
+  - Option to analyze only changed files
 - View real-time analysis progress
 - Browse issues by category and severity
 - Search your codebase semantically
+
+**Repository Analysis Example:**
+1. Click "Repository" mode toggle
+2. Enter: `https://github.com/username/repo.git`
+3. (Optional) Specify branch: `develop`
+4. (Optional) Check "Analyze only changed files"
+5. Click "Analyze Repository"
 
 ### Command Line Interface
 

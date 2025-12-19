@@ -3,7 +3,9 @@ from agents.security_scanner import SecurityScanner
 from agents.code_quality import CodeQualityAgent
 from agents.performance_analyzer import PerformanceAgent
 from agents.best_practices import BestPracticesAgent
-from concurrent.futures import ThreadPoolExecutor
+from agents.git_analyzer import GitAnalyzer
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Optional, Dict
 import os
 
 class Coordinator:
@@ -324,3 +326,121 @@ class Coordinator:
             conn.commit()
         
         print(f"   ✅ Merged all findings to main database")
+    
+    def analyze_repository(self, repo_url: str, branch: Optional[str] = None, 
+                          analyze_changed_only: bool = False) -> Dict:
+        """
+        Analyze entire Git repository
+        
+        Args:
+            repo_url: Git repository URL
+            branch: Optional branch name
+            analyze_changed_only: If True, only analyze changed files (compared to main)
+            
+        Returns:
+            Dictionary with analysis results for all files
+        """
+        git_analyzer = GitAnalyzer()
+        
+        try:
+            print(f"\n{'='*60}")
+            print(f"📦 Cloning repository: {repo_url}")
+            if branch:
+                print(f"🌿 Branch: {branch}")
+            print(f"{'='*60}")
+            
+            # Clone repository
+            repo_path = git_analyzer.clone_repository(repo_url, branch)
+            
+            # Get files to analyze
+            if analyze_changed_only:
+                print("📝 Analyzing only changed files...")
+                files_to_analyze = git_analyzer.get_changed_files(repo_path)
+            else:
+                print("📝 Analyzing all code files...")
+                files_to_analyze = git_analyzer.get_all_code_files(repo_path)
+            
+            if not files_to_analyze:
+                return {
+                    'error': 'No code files found in repository',
+                    'total_files': 0,
+                    'results': []
+                }
+            
+            print(f"📊 Found {len(files_to_analyze)} files to analyze")
+            
+            # Get repository stats
+            stats = git_analyzer.get_file_stats(repo_path)
+            
+            # Analyze each file
+            all_results = []
+            total_issues = {
+                'security': 0,
+                'quality': 0,
+                'performance': 0,
+                'best_practices': 0
+            }
+            
+            print(f"\n{'='*60}")
+            print("🔍 Starting multi-file analysis...")
+            print(f"{'='*60}\n")
+            
+            for idx, file_path in enumerate(files_to_analyze, 1):
+                try:
+                    print(f"[{idx}/{len(files_to_analyze)}] Analyzing: {file_path}")
+                    
+                    # Read file
+                    code = git_analyzer.read_file(repo_path, file_path)
+                    
+                    # Analyze file
+                    file_results = self.analyze_code(code, file_path)
+                    
+                    # Add file path to results
+                    file_results['file_path'] = file_path
+                    all_results.append(file_results)
+                    
+                    # Aggregate totals
+                    total_issues['security'] += file_results['security']['count']
+                    total_issues['quality'] += file_results['quality']['count']
+                    total_issues['performance'] += file_results['performance']['count']
+                    total_issues['best_practices'] += file_results['best_practices']['count']
+                    
+                except Exception as e:
+                    print(f"⚠️  Error analyzing {file_path}: {str(e)}")
+                    all_results.append({
+                        'file_path': file_path,
+                        'error': str(e),
+                        'total_issues': 0
+                    })
+            
+            # Compile repository-level results
+            repo_results = {
+                'repo_url': repo_url,
+                'branch': branch,
+                'total_files': len(files_to_analyze),
+                'stats': stats,
+                'total_issues': {
+                    'security': total_issues['security'],
+                    'quality': total_issues['quality'],
+                    'performance': total_issues['performance'],
+                    'best_practices': total_issues['best_practices'],
+                    'total': sum(total_issues.values())
+                },
+                'files': all_results
+            }
+            
+            print(f"\n{'='*60}")
+            print(f"✅ Repository analysis complete!")
+            print(f"   Files analyzed: {len(files_to_analyze)}")
+            print(f"   Total issues: {repo_results['total_issues']['total']}")
+            print(f"   🔒 Security: {total_issues['security']}")
+            print(f"   ✨ Quality: {total_issues['quality']}")
+            print(f"   ⚡ Performance: {total_issues['performance']}")
+            print(f"   📋 Best Practices: {total_issues['best_practices']}")
+            print(f"{'='*60}\n")
+            
+            return repo_results
+            
+        finally:
+            # Cleanup
+            git_analyzer.cleanup()
